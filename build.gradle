@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 目前没有外部依赖
+}
+
+application {
+    mainClass = 'HttpServerHandler'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['01_src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'HttpServerHandler'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
