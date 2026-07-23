@@ -1,6 +1,6 @@
 name: Java CI with Gradle
 
-# 1. 触发条件：当向 main 分支推送代码或提交 Pull Request 时触发
+# 1. 定义触发条件：当向 main 分支推送代码或提交 Pull Request 时触发
 on:
   push:
     branches: [ "main" ]
@@ -28,22 +28,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # 6. 【防错步骤】动态生成 Gradle Wrapper
-      # 如果仓库中遗漏了 gradlew 文件，此步骤会自动生成它，避免后续报错
-      - name: Generate Gradle Wrapper (Fallback)
-        run: gradle wrapper --gradle-version 8.5
-
-      # 7. 赋予 gradlew 脚本可执行权限（Linux/Mac 环境必备）
+      # 6. 赋予 gradlew 脚本可执行权限（Linux/Mac 环境推荐）
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 8. 使用 Gradle 执行构建
+      # 7. 使用 Gradle 构建 JAR 包
       - name: Build with Gradle
         run: ./gradlew build
-
-      # 9. 上传构建产物（方便在 GitHub 页面上直接下载 JAR 包）
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Package
-          path: build/libs
