@@ -10,6 +10,8 @@ public class HttpServerHandler {
     private static CustomerList customerList = new CustomerList(14);
 
     public static void main(String[] args) throws IOException {
+        //新增：初始化 CustomerList 并加载历史数据
+        customerList = new CustomerList(14);
         // 创建 HTTP 服务器，监听 8080 端口
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 

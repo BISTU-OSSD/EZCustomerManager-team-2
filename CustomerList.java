@@ -1,7 +1,10 @@
 /*客户管理类，完成客户在数组这个结构当中增加，修改，删除，查询四类操作*/
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 public class CustomerList {
-	private Customer[] customers; // 存储客户的数组
-    private int total;            // 记录当前客户数量
+	private Customer[] customers;                              // 存储客户的数组
+    private int total;                                         // 记录当前客户数量
+    private static final String DATA_FILE = "customers.txt";   // 数据文件路径
     
     public CustomerList(int totalCustomer) {
         // TODO 1: 根据参数 totalCustomer 创建 Customer 数组，赋值给成员变量 customers
@@ -9,7 +12,66 @@ public class CustomerList {
     	
         // TODO 2: 将 total 初始化为
     	total=0;
+
+        //构造时自动加载历史数据
+        loadFromFile();
     }
+
+    public void saveToFile() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE, StandardCharsets.UTF_8))) {
+            for (int i = 0; i < total; i++) {
+                Customer c = customers[i];
+                writer.println(c.getName() + "," + c.getGender() + "," + c.getAge() + "," + c.getPhone() + "," + c.getEmail());
+            }
+        } catch (IOException e) {
+            System.out.println("保存数据失败：" + e.getMessage());
+        }
+    }
+
+    public void loadFromFile() {
+        File file = new File(DATA_FILE);
+        if (!file.exists()) {
+            return; // 首次运行，没有文件，正常跳过
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+            String line;
+            int loadedCount = 0;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+                if (parts.length == 5) {
+                    try {
+                        String name = parts[0];
+                        char gender = parts[1].charAt(0);
+                        int age = Integer.parseInt(parts[2]);
+                        String phone = parts[3];
+                        String email = parts[4];
+                        Customer c = new Customer(name, gender, age, phone, email);
+                        // 直接添加到数组，避免触发循环保存
+                        if (total < customers.length) {
+                            customers[total] = c;
+                            total++;
+                            loadedCount++;
+                        } else {
+                            System.out.println("数组已满，停止加载，共加载 " + loadedCount + " 条");
+                            break;
+                        }
+                    } catch (Exception e) {
+                        System.out.println("解析行失败，跳过：" + line);
+                    }
+                } else {
+                    System.out.println("格式错误，跳过：" + line);
+                }
+            }
+            if (loadedCount > 0) {
+                System.out.println("成功加载 " + loadedCount + " 位客户数据");
+            }
+        } catch (IOException e) {
+            System.out.println("加载数据失败：" + e.getMessage());
+        }
+    }
+
     public boolean addCustomer(Customer customer) {
     	    // TODO 3: 判断数组是否已满，如果已满，打印提示并返回 false
     		if(total >= customers.length) {
@@ -21,6 +83,8 @@ public class CustomerList {
     	    customers[total]= customer;
     	    // TODO 5: total 自增 1
     	    total=total+1;
+            // 添加后自动保存
+            saveToFile();
     	    // TODO 6: 返回 true 表示添加成功
     	    return true;
     		}
@@ -69,6 +133,8 @@ public class CustomerList {
         
         // 3. 执行替换操作
         customers[index] = cust;
+        // 添加后自动保存
+        saveToFile();
         return true;
     }
     
@@ -89,6 +155,8 @@ public class CustomerList {
         total--;
 
         System.out.println("删除成功！");
+        // 添加后自动保存
+        saveToFile();
         return true;
     }
     
