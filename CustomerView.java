@@ -45,7 +45,7 @@ public class CustomerView{
 				//退出软件，进行二次确认，不确认则返回重新显示菜单
 				System.out.println("                  确认是否退出软件Y/N");
 				char cConfirm=Utility.readConfirmSelection();
-				if(cConfirm!='Y') {
+				if(cConfirm=='Y') {
 					//让循环标志为false
 					flag=false;
 					//重新显示菜单
